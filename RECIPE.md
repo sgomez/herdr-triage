@@ -1,6 +1,6 @@
 # Triage
 
-A layout for running many agents at once, built around one question: who needs me now? The left sidebar is an inbox, with blocked agents in a band on top and spaces with their tabs below in a stable order. A right panel lets you answer an agent without leaving the one you're in, and brings the repo's pull requests, CI and issues next to the terminals, with a launcher that starts an agent on an issue in its own worktree.
+Triage is a Herdr layout for running many coding agents at once, built around one question: who needs me now? The sidebar is an inbox, with blocked agents on top, longest waiting first, and below them your spaces and tabs in an order that doesn't jump around, on this computer or a remote one. The side panel lets you answer an agent without switching to it. It also brings the repo next to your terminals: the changes to review, a commit graph, the pull requests with their CI, and the issues. From an issue, one click starts an agent on it in its own worktree.
 
 ![Triage](preview.png)
 
