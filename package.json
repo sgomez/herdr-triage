@@ -1,6 +1,7 @@
 {
   "name": "herdr-triage",
   "private": true,
+  "license": "EUPL-1.2",
   "type": "module",
   "scripts": {
     "test": "node scripts/check.mjs && node --test"
