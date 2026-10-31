@@ -1,0 +1,7 @@
+{
+  "layout:triage": {
+    "cmd-shift-j": "triage.next-blocked",
+    "cmd-shift-u": "triage.next-done",
+    "cmd-shift-r": "layout.toggle:panel"
+  }
+}

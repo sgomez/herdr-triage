@@ -1,0 +1,8 @@
+{
+  "name": "herdr-triage",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/check.mjs && node --test"
+  }
+}

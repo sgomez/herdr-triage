@@ -1,0 +1,4 @@
+jsconfig.json
+*.d.ts
+node_modules/
+.DS_Store
