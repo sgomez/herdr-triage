@@ -5,6 +5,7 @@ import * as issues from "../mods/triage-issues/lib.js";
 import * as pr from "../mods/triage-pr/lib.js";
 import * as launch from "../mods/triage-launch/lib.js";
 import * as status from "../mods/triage-status/lib.js";
+import * as history from "../mods/triage-history/lib.js";
 
 const MIN = 60000;
 
@@ -88,4 +89,49 @@ test("worktrees go where Herdr's own dialog puts them", () => {
 test("git status: branch, ahead/behind and changed files", () => {
   assert.deepEqual(status.parseStatus("## main...origin/main [ahead 2, behind 1]\n M a.js\n?? b.js\n"), { branch: "main", ahead: 2, behind: 1, dirty: 2 });
   assert.deepEqual(status.parseStatus("## No commits yet on dev\n"), { branch: "dev", ahead: 0, behind: 0, dirty: 0 });
+});
+
+test("parseLog reads refs and marks HEAD", () => {
+  const [c] = history.parseLog("abc\x1fp1 p2\x1fAna\x1f2026-01-01T00:00:00Z\x1fHEAD -> main, origin/main, tag: v1\x1fMerge x\n");
+  assert.deepEqual(c.parents, ["p1", "p2"]);
+  assert.deepEqual(c.refs, ["main", "origin/main", "tag: v1"]);
+  assert.equal(c.head, true);
+  assert.equal(c.subject, "Merge x");
+});
+
+test("graph opens a lane for a merged branch and closes it at the fork", () => {
+  const rows = history.graph([
+    { hash: "M", parents: ["A", "B"] },
+    { hash: "A", parents: ["R"] },
+    { hash: "B", parents: ["R"] },
+    { hash: "R", parents: [] },
+  ]);
+  assert.deepEqual(rows.map((r) => [r.lane, r.color]), [[0, 0], [0, 0], [1, 1], [0, 0]]);
+  assert.deepEqual(rows[0], { lane: 0, color: 0, top: [], bottom: [{ lane: 0, color: 0 }], joins: [{ lane: 1, color: 1, dir: "out" }], width: 2 });
+  assert.deepEqual(rows[3].joins, [{ lane: 1, color: 1, dir: "in" }]);
+  assert.deepEqual(rows[3].top, [{ lane: 0, color: 0 }]);
+});
+
+test("graph reuses a freed lane", () => {
+  const rows = history.graph([
+    { hash: "A", parents: ["B"] },
+    { hash: "X", parents: [] },
+    { hash: "B", parents: [] },
+  ]);
+  assert.deepEqual(rows.map((r) => r.lane), [0, 1, 0]);
+});
+
+test("parseSubject reads conventional commits and merged pull requests", () => {
+  assert.deepEqual(history.parseSubject("feat(api)!: add x"), { type: "feat", scope: "api", breaking: true, text: "add x" });
+  assert.deepEqual(history.parseSubject("Merge pull request #16 from o/docs/x"), { pr: 16, text: "docs/x" });
+  assert.deepEqual(history.parseSubject("Plain message"), { text: "Plain message" });
+});
+
+test("initials, and parseShow splits message from file stats", () => {
+  assert.equal(history.initials("Ana Ruiz Gil"), "AG");
+  assert.equal(history.initials("dev-bot"), "DB");
+  assert.equal(history.initials(""), "?");
+  const d = history.parseShow("Title\n\nBody line\n\x1e\n3\t1\tsrc/a.js\n-\t-\timg.png\n");
+  assert.equal(d.body, "Body line");
+  assert.deepEqual(d.files, [{ path: "src/a.js", add: 3, del: 1 }, { path: "img.png", add: null, del: null }]);
 });

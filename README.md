@@ -10,6 +10,7 @@ A [Herdr](https://herdr.dev) layout for running many coding agents at once. The 
 - **Spaces and tabs in a stable order.** Agents don't move around as they change state. Pin a tab to the top, snooze it for an hour or until tomorrow (a block wakes it), or archive it. Sub-agents hang under their parent with their own icon.
 - **Worktrees under their repo.** A space opened in a worktree nests under its repo's main checkout. Folded, the checkout shows "+N worktrees" and the most urgent state among them.
 - **Reply.** The last 40 lines of the selected agent's screen, a box to answer it, Press Enter for approvals and Interrupt.
+- **History.** The focused folder's commits as a graph with curved, colored lanes; conventional commit types, pull requests, branches and tags as labels; this branch or all of them, and a filter. Click a commit for its message and files, and a file for its diff.
 - **PR & CI.** The current branch's pull request with its checks, failures first; then the repo's open pull requests, or yours.
 - **Issues.** The repo's open issues, or yours, two lines each with labels and sub-issue progress. The issue view renders Markdown, opens `#123` links in place, and lets you comment, assign yourself, edit labels, close and reopen.
 - **Start agent.** From an issue: pick the agent, its permission mode, a checkout or a new worktree, and a first message from a template. The worktree goes where Herdr's own worktree dialog puts them, `~/.herdr/worktrees/<repo>/<branch>`, on the space's machine.
@@ -54,7 +55,7 @@ The launcher reads its settings in this order: what the person saved in Settings
 Before you add it, know that these mods run programs:
 
 - `gh` for pull requests, checks and issues, and for the actions you take on them (comment, assign, label, close).
-- `git` to read the branch and status, find each space's repo, and create worktrees (`git worktree add`).
+- `git` to read the branch, status and history, find each space's repo, and create worktrees (`git worktree add`).
 - `hc` (Herdr's CLI) to read agents' screens, send them text and keys, and list machines.
 - `open` or `xdg-open` for links that leave the app.
 

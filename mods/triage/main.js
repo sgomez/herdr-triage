@@ -59,7 +59,7 @@ export default class Triage extends View {
     if (props()?.snooze || props()?.newSpace) return;
     // The shipped tabs mod only restores the side panel on tabs listed here.
     const panels = shared("workspace.panels") ?? ["files", "changes"];
-    const missing = ["reply", "pr", "issues", "settings"].filter((p) => !panels.includes(p));
+    const missing = ["reply", "history", "pr", "issues", "settings"].filter((p) => !panels.includes(p));
     if (missing.length) setShared("workspace.panels", [...panels, ...missing]);
     this.folded = new Set(["snoozed", "archived"]);
     // When each terminal entered its current state; status_ms can lag, so we keep our own.

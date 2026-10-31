@@ -119,6 +119,14 @@
                       "title": "Review"
                     },
                     {
+                      "id": "history",
+                      "type": "block",
+                      "content": {
+                        "mod": "triage-history"
+                      },
+                      "title": "History"
+                    },
+                    {
                       "id": "pr",
                       "type": "block",
                       "content": {
