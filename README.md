@@ -74,4 +74,4 @@ Checks the JSON, the syntax of every mod, that each mod and icon the layout uses
 
 ## License
 
-[EUPL-1.2](LICENSE) © 2026 Sergio Gómez
+[EUPL-1.2](LICENSE)
