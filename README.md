@@ -13,11 +13,12 @@ Triage is a [Herdr](https://herdr.dev) layout for running many coding agents at 
 - **History.** The focused folder's commits as a graph with curved, colored lanes; conventional commit types, pull requests, branches and tags as labels; this branch or all of them, and a filter. Click a commit for its message and files, and a file for its diff.
 - **PR & CI.** The current branch's pull request with its checks, failures first; then the repo's open pull requests, or yours.
 - **Issues.** The repo's open issues, or yours, two lines each with labels and sub-issue progress. The issue view renders Markdown, opens `#123` links in place, and lets you comment, assign yourself, edit labels, close and reopen.
+- **Worktrees.** The repo's worktrees with what's uncommitted or unpushed, and the ones safe to remove (merged, or their remote branch deleted) with a Remove button. Only git, no GitHub API calls.
 - **Start agent.** From an issue: pick the agent, its permission mode, a checkout or a new worktree, and a first message from a template. The worktree goes where Herdr's own worktree dialog puts them, `~/.herdr/worktrees/<repo>/<branch>`, on the space's machine.
 - **Settings.** Message templates with `{number}`, `{title}`, `{repo}`, `{url}`, `{slug}` and `{branch}`; permission modes per agent; the branch name pattern. Saved as you type.
 - **Status bar.** Counters for need you, done and working (the first two jump to the next one), and the focused folder's branch with ahead/behind and changed files.
 - **Rail.** Fold the sidebar to a column of icons and states.
-- **Activity bar.** The side panel's sections as icons on its edge, with counts: agents waiting on Reply, changed files on Review.
+- **Activity bar.** The side panel's sections as icons on its edge, with counts: agents waiting on Reply, changed files on Review, worktrees ready to remove.
 
 GitHub data comes from the [GitHub CLI](https://cli.github.com) and is cached for five minutes per folder, so it doesn't eat your rate limit.
 

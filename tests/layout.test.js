@@ -31,7 +31,7 @@ test("revealing selects the tab and shows only hidden ancestors", () => {
 });
 
 test("stackTabs lists the side panel's own tabs", () => {
-  assert.deepEqual(stackTabs(triage, (m) => m.startsWith("triage-")), ["reply", "history", "pr", "issues", "settings"]);
+  assert.deepEqual(stackTabs(triage, (m) => m.startsWith("triage-")), ["reply", "history", "pr", "issues", "worktrees", "settings"]);
 });
 
 test("reveal runs the layout steps, else focuses or opens the mod's pane", () => {

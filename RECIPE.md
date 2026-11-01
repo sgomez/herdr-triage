@@ -50,6 +50,11 @@ State marks, shape as well as color: working is a spinning ring in `working`; bl
   - Open or Mine, two lines each with labels and sub-issue progress. Issue numbers seen on the focused terminal's screen are listed on top.
   - The detail view renders body and the last five comments as Markdown. `#123` and links to this repo's issues open in place, with Back (`← #N`), and pull requests open in the browser. You can comment, assign yourself, remove labels, close and reopen.
   - "Hand to agent" drafts a message in Reply. "Start agent" opens the launcher.
+- **Worktrees** of the focused folder's repo, from `git worktree list` (the main checkout left out), newest commit first. Only git, never the GitHub API; refreshes every 30 s.
+  - Per worktree: branch, a dot coloured by its space's status if one is open, `↑ahead` `↓behind` against `origin/HEAD` (else `main` or `master`), uncommitted files, commits on no remote, last commit.
+  - "Ready to remove" when nothing is lost: no uncommitted changes, no agent working or waiting in its space, not locked, and its commits are in base or its upstream is `[gone]` (deleted on the remote, which a squash merge leaves as the only trace). The rest are "In progress".
+  - A click goes to its space or opens one there. Remove asks inline, checks `git status` again, closes the space, runs `git worktree remove` (never forced) and `git branch -D`. The remote branch is never touched.
+  - Publishes `badge.triage-worktrees` with the ready count.
   - Lists are cached per folder and filter for five minutes (`localStorage`); Refresh forces a fetch.
 - **Launcher** (`triage-launch` as a dialog, props `{space, folder, issue}`):
   - Chips for agent (`knownAgents` on the space's machine), mode, Checkout or Worktree, and template; a branch field; a task textarea.
@@ -63,7 +68,7 @@ State marks, shape as well as color: working is a spinning ring in `working`; bl
   - Every change saves at once to `shared("triage.launch")`. Each section has "Reset to defaults". A folded "Advanced: JSON" allows copy and paste.
   - Config precedence: shared, then the layout's `props.defaults`, then built-in.
 - **Status bar.** "N need you" and "N done" (click to jump), "N working", then the focused folder's branch, `↑ahead`, `↓behind` and `±changed` (click opens Review). Refreshes every 10 s.
-- **Activity bar.** One 40 px icon per child of the stack in `props.stack`, Settings at the bottom; the shown one is in `foreground` with a 2 px `accent` left border, the rest `dim`. A tooltip names it and a click runs `layout.select`. A mod puts a count on its icon with `setShared("badge.<mod>", {count, tone})`, `tone` a theme color: a 15 px pill at the top right, `99+` above 99. The status bar publishes need you on Reply (`blocked`) and changed files on Review (`done`), only when they change, since every write re-renders all mods.
+- **Activity bar.** One 40 px icon per child of the stack in `props.stack`, Settings at the bottom; the shown one is in `foreground` with a 2 px `accent` left border, the rest `dim`. A tooltip names it and a click runs `layout.select`. A mod puts a count on its icon with `setShared("badge.<mod>", {count, tone})`, `tone` a theme color: a 15 px pill at the top right, `99+` above 99. The status bar publishes need you on Reply (`blocked`) and changed files on Review (`done`), Worktrees its ready count, only when they change, since every write re-renders all mods.
 
 ## Built from
 
@@ -71,14 +76,14 @@ State marks, shape as well as color: working is a spinning ring in `working`; bl
   - `root` row: `sidebar` column (`brand`, `inbox`, `sidebar-footer`; `min` 44) and `work` column.
   - `work` holds `tabs`, a `work-body` row (`main`, then the `panel` row: the `panel-body` stack and `activity`) and `status`.
   - `titlebar: "none"`, macOS traffic lights at `[12, 16]`, preview `layouts/triage.svg`.
-- **Mods** here: `triage` (inbox; its popups are copies of itself with `props.snooze` or `props.newSpace`), `triage-reply`, `triage-history`, `triage-pr`, `triage-issues`, `triage-launch`, `triage-status`, `triage-activity` (its own Reply, PR and Issues icons). Each has `"place": "none"`, and pure helpers in `lib.js`.
+- **Mods** here: `triage` (inbox; its popups are copies of itself with `props.snooze` or `props.newSpace`), `triage-reply`, `triage-history`, `triage-pr`, `triage-issues`, `triage-worktrees`, `triage-launch`, `triage-status`, `triage-activity` (its own Reply, PR, Issues, Worktrees and Files icons). Each has `"place": "none"`, and pure helpers in `lib.js`.
 - **Shipped mods**: `workspace-chrome` (brand, footer, and its SVG icons, used by path), `tabs`, `changes`, `files`, `menu`, `new-menu`.
 - **herdr**:
   - state: `agents`, `terminals`, `spaces`, `focused`, `panes`, `knownAgents`, `layout`, `shared`/`setShared`, `setAgentOrder`, `nextCommand`;
   - overlays: `openOverlay`/`closeOverlay`;
   - commands: `terminal.open`, `layout.select`, `layout.show`, `layout.toggle`, `layout.resize`, `space.select`, `space.new`, `tab.new`, `tab.select`, `tab.settle`, `tab.unsettle`, `terminal.peek`.
 - **Programs**: `gh`, `git`, `sh`, `hc`, `open`/`xdg-open`.
-- **Shared keys**: `triage.pins`, `triage.snoozed`, `triage.seen`, `triage.target`, `triage.draft`, `triage.launch`, `triage.launch.last`, `badge.<mod>`, and `workspace.panels`, to which the inbox adds `reply`, `history`, `pr`, `issues` and `settings` so the shipped `tabs` restores them.
+- **Shared keys**: `triage.pins`, `triage.snoozed`, `triage.seen`, `triage.target`, `triage.draft`, `triage.launch`, `triage.launch.last`, `badge.<mod>`, and `workspace.panels`, to which the inbox adds `reply`, `history`, `pr`, `issues`, `worktrees` and `settings` so the shipped `tabs` restores them.
 
 ## Watch out
 
@@ -106,6 +111,7 @@ State marks, shape as well as color: working is a spinning ring in `working`; bl
 - Start agent with Worktree creates `~/.herdr/worktrees/<repo>/<branch>` and a new space with the agent running the template, nested under the repo's checkout.
 - A template edited in Settings survives a restart.
 - In a git repo, History draws its commits with lanes; a click shows the files, and a file opens its diff to the right.
+- In a repo with a worktree whose branch is in base, Worktrees lists it as ready to remove, its icon shows 1, and Remove deletes the folder and the local branch.
 - Folding the sidebar draws the rail; `»` restores it.
 - Clicking an activity bar icon shows that panel; a blocked agent puts a count on Reply.
 - `npm test` passes.

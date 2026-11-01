@@ -6,6 +6,7 @@ import * as pr from "../mods/triage-pr/lib.js";
 import * as launch from "../mods/triage-launch/lib.js";
 import * as status from "../mods/triage-status/lib.js";
 import * as history from "../mods/triage-history/lib.js";
+import * as worktrees from "../mods/triage-worktrees/lib.js";
 
 const MIN = 60000;
 
@@ -134,4 +135,29 @@ test("initials, and parseShow splits message from file stats", () => {
   const d = history.parseShow("Title\n\nBody line\n\x1e\n3\t1\tsrc/a.js\n-\t-\timg.png\n");
   assert.equal(d.body, "Body line");
   assert.deepEqual(d.files, [{ path: "src/a.js", add: 3, del: 1 }, { path: "img.png", add: null, del: null }]);
+});
+
+test("parseWorktrees reads porcelain blocks, the main checkout first", () => {
+  const out = "worktree /r\nHEAD a\nbranch refs/heads/main\n\nworktree /w/x\nHEAD b\nbranch refs/heads/feat/x\nlocked\n\nworktree /w/y\nHEAD c\ndetached\nprunable gitdir file points to non-existent location\n";
+  assert.deepEqual(worktrees.parseWorktrees(out), [
+    { path: "/r", branch: "main", main: true, locked: false, prunable: false },
+    { path: "/w/x", branch: "feat/x", main: false, locked: true, prunable: false },
+    { path: "/w/y", branch: null, main: false, locked: false, prunable: true },
+  ]);
+});
+
+test("parseStats reads one tab-separated line per worktree", () => {
+  assert.deepEqual(worktrees.parseStats("/w/x\t2\t1\t3\t0\t2026-01-01T00:00:00Z\t[gone]\n/w/y\t0\t0\t0\t0\t\t\n"), {
+    "/w/x": { dirty: 2, behind: 1, ahead: 3, unpushed: 0, date: "2026-01-01T00:00:00Z", gone: true },
+    "/w/y": { dirty: 0, behind: 0, ahead: 0, unpushed: 0, date: null, gone: false },
+  });
+});
+
+test("ready only offers worktrees that lose nothing", () => {
+  const clean = { dirty: 0, ahead: 0, gone: false };
+  assert.equal(worktrees.ready(clean, false), "in base");
+  assert.equal(worktrees.ready({ ...clean, ahead: 2, gone: true }, false), "remote gone");
+  assert.equal(worktrees.ready({ ...clean, ahead: 2 }, false), null);
+  assert.equal(worktrees.ready({ ...clean, dirty: 1 }, false), null);
+  assert.equal(worktrees.ready(clean, true), null);
 });

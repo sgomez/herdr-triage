@@ -143,6 +143,14 @@
                       }
                     },
                     {
+                      "id": "worktrees",
+                      "title": "Worktrees",
+                      "type": "block",
+                      "content": {
+                        "mod": "triage-worktrees"
+                      }
+                    },
+                    {
                       "id": "files",
                       "type": "block",
                       "content": {

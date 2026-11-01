@@ -11,8 +11,8 @@ const ICONS = {
   changes: "mods/workspace-chrome/git-compare.svg",
   "triage-history": "mods/workspace-chrome/clock.svg",
   "triage-pr": "mods/triage-activity/pr.svg",
-  "triage-issues": "mods/triage-activity/issues.svg",
-  files: "mods/workspace-chrome/files.svg",
+  "triage-issues": "mods/triage-activity/issues.svg", "triage-worktrees": "mods/triage-activity/worktree.svg",
+  files: "mods/triage-activity/code.svg",
 };
 const SETTINGS = "mods/workspace-chrome/settings.svg";
 
