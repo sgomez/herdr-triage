@@ -17,6 +17,7 @@ Triage is a [Herdr](https://herdr.dev) layout for running many coding agents at 
 - **Settings.** Message templates with `{number}`, `{title}`, `{repo}`, `{url}`, `{slug}` and `{branch}`; permission modes per agent; the branch name pattern. Saved as you type.
 - **Status bar.** Counters for need you, done and working (the first two jump to the next one), and the focused folder's branch with ahead/behind and changed files.
 - **Rail.** Fold the sidebar to a column of icons and states.
+- **Activity bar.** The side panel's sections as icons on its edge, with counts: agents waiting on Reply, changed files on Review.
 
 GitHub data comes from the [GitHub CLI](https://cli.github.com) and is cached for five minutes per folder, so it doesn't eat your rate limit.
 

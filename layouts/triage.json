@@ -96,7 +96,7 @@
             },
             {
               "id": "panel",
-              "type": "column",
+              "type": "row",
               "children": [
                 {
                   "id": "panel-body",
@@ -162,10 +162,20 @@
                       }
                     }
                   ],
-                  "active": "reply",
-                  "header": {
-                    "content": "tabs",
-                    "height": 34
+                  "active": "reply"
+                },
+                {
+                  "id": "activity",
+                  "type": "block",
+                  "size": {
+                    "px": 40
+                  },
+                  "resizable": false,
+                  "content": {
+                    "mod": "triage-activity",
+                    "props": {
+                      "stack": "panel-body"
+                    }
                   }
                 }
               ],

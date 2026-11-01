@@ -19,7 +19,7 @@ Left to right:
 2. **Work column.**
    - **Tabs** (42 px): shipped `tabs`.
    - **Main**: the terminals.
-   - **Side panel** (420 px, hidden by default, toggled with `⌘⇧R`): a stack of Reply, Review (shipped `changes`), History, PR & CI, Issues, Files (shipped `files`) and Settings.
+   - **Side panel** (420 px, hidden by default, toggled with `⌘⇧R`): a stack of Reply, Review (shipped `changes`), History, PR & CI, Issues, Files (shipped `files`) and Settings, with no header. On its right, a 40 px activity bar switches them.
    - **Status bar** (28 px): `triage-status`.
 
 State marks, shape as well as color: working is a spinning ring in `working`; blocked is a rounded square with `!` (`×` for error) on `blocked` at 15% alpha; done is a filled dot in `done`; idle is a hollow ring.
@@ -63,21 +63,22 @@ State marks, shape as well as color: working is a spinning ring in `working`; bl
   - Every change saves at once to `shared("triage.launch")`. Each section has "Reset to defaults". A folded "Advanced: JSON" allows copy and paste.
   - Config precedence: shared, then the layout's `props.defaults`, then built-in.
 - **Status bar.** "N need you" and "N done" (click to jump), "N working", then the focused folder's branch, `↑ahead`, `↓behind` and `±changed` (click opens Review). Refreshes every 10 s.
+- **Activity bar.** One 40 px icon per child of the stack in `props.stack`, Settings at the bottom; the shown one is in `foreground` with a 2 px `accent` left border, the rest `dim`. A tooltip names it and a click runs `layout.select`. A mod puts a count on its icon with `setShared("badge.<mod>", {count, tone})`, `tone` a theme color: a 15 px pill at the top right, `99+` above 99. The status bar publishes need you on Reply (`blocked`) and changed files on Review (`done`), only when they change, since every write re-renders all mods.
 
 ## Built from
 
 - **Layout** `layouts/triage.json`:
   - `root` row: `sidebar` column (`brand`, `inbox`, `sidebar-footer`; `min` 44) and `work` column.
-  - `work` holds `tabs`, a `work-body` row (`main`, then `panel` with the `panel-body` stack) and `status`.
+  - `work` holds `tabs`, a `work-body` row (`main`, then the `panel` row: the `panel-body` stack and `activity`) and `status`.
   - `titlebar: "none"`, macOS traffic lights at `[12, 16]`, preview `layouts/triage.svg`.
-- **Mods** here: `triage` (inbox; its popups are copies of itself with `props.snooze` or `props.newSpace`), `triage-reply`, `triage-history`, `triage-pr`, `triage-issues`, `triage-launch`, `triage-status`. Each has `"place": "none"`, and pure helpers in `lib.js`.
+- **Mods** here: `triage` (inbox; its popups are copies of itself with `props.snooze` or `props.newSpace`), `triage-reply`, `triage-history`, `triage-pr`, `triage-issues`, `triage-launch`, `triage-status`, `triage-activity` (its own Reply, PR and Issues icons). Each has `"place": "none"`, and pure helpers in `lib.js`.
 - **Shipped mods**: `workspace-chrome` (brand, footer, and its SVG icons, used by path), `tabs`, `changes`, `files`, `menu`, `new-menu`.
 - **herdr**:
   - state: `agents`, `terminals`, `spaces`, `focused`, `panes`, `knownAgents`, `layout`, `shared`/`setShared`, `setAgentOrder`, `nextCommand`;
   - overlays: `openOverlay`/`closeOverlay`;
   - commands: `terminal.open`, `layout.select`, `layout.show`, `layout.toggle`, `layout.resize`, `space.select`, `space.new`, `tab.new`, `tab.select`, `tab.settle`, `tab.unsettle`, `terminal.peek`.
 - **Programs**: `gh`, `git`, `sh`, `hc`, `open`/`xdg-open`.
-- **Shared keys**: `triage.pins`, `triage.snoozed`, `triage.seen`, `triage.target`, `triage.draft`, `triage.launch`, `triage.launch.last`, and `workspace.panels`, to which the inbox adds `reply`, `history`, `pr`, `issues` and `settings` so the shipped `tabs` restores them.
+- **Shared keys**: `triage.pins`, `triage.snoozed`, `triage.seen`, `triage.target`, `triage.draft`, `triage.launch`, `triage.launch.last`, `badge.<mod>`, and `workspace.panels`, to which the inbox adds `reply`, `history`, `pr`, `issues` and `settings` so the shipped `tabs` restores them.
 
 ## Watch out
 
@@ -106,4 +107,5 @@ State marks, shape as well as color: working is a spinning ring in `working`; bl
 - A template edited in Settings survives a restart.
 - In a git repo, History draws its commits with lanes; a click shows the files, and a file opens its diff to the right.
 - Folding the sidebar draws the rail; `»` restores it.
+- Clicking an activity bar icon shows that panel; a blocked agent puts a count on Reply.
 - `npm test` passes.

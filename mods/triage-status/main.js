@@ -4,13 +4,19 @@ import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
 import { parseStatus } from "./lib.js";
 import { reveal } from "./layout.js";
-import { spaces, panes, focused, agents, terminals, exec, theme, run, window, layout } from "herdr";
+import { spaces, panes, focused, agents, terminals, exec, theme, run, window, layout, shared, setShared } from "herdr";
 
 function location() {
   const space = spaces().find((s) => s.active), f = focused();
   const pane = f?.pane ? panes().find((p) => p.pane === f.pane) : null;
   const on = f?.pane === null ? (f.terminal?.includes("/") ? f.terminal.split("/")[0] : null) : space?.machine ?? null;
   return { cwd: pane?.cwd || f?.cwd || space?.folder, on };
+}
+
+// Counts for triage-activity's icons; only on change, since setting re-renders every mod.
+function badge(mod, count, tone) {
+  const key = `badge.${mod}`, value = { count, tone };
+  if (JSON.stringify(shared(key)) !== JSON.stringify(value)) setShared(key, value);
 }
 
 export default class TriageStatus extends View {
@@ -47,6 +53,8 @@ export default class TriageStatus extends View {
       .when(n > 0 && Boolean(command), (el) => el.cursor_pointer().hover((s) => s.text_color(t.foreground)).on_click(() => run(command)))
       .child(div().font_semibold().child(String(n))).child(label);
     const g = this.git;
+    badge("triage-reply", blocked, "blocked");
+    badge("changes", g?.dirty ?? 0, "done");
     const mac = window()?.platform === "macos";
     return h_flex().size_full().px(14).gap(16).items_center().bg(t.chrome).border_t(1).border_color(t.border).text_size(11.8).text_color(t.muted)
       .child(counter("c-blocked", blocked, "need you", t.blocked, "triage.next-blocked"))

@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 
 // Shipped with Herdr, so not in this repo.
 const SHIPPED = new Set(["changes", "files", "menu", "new-menu", "pane", "tabs", "workspace-chrome"]);
-const ICONS = new Set(["archive", "branch", "check", "chevron-down", "chevron-right", "clock", "monitor", "pin", "pin-off", "plus", "server", "spinner", "square", "terminal", "x"]);
+const ICONS = new Set(["archive", "branch", "check", "chevron-down", "chevron-right", "clock", "files", "git-compare", "monitor", "pin", "pin-off", "plus", "server", "settings", "spinner", "square", "terminal", "x"]);
 
 const errors = [];
 const json = (path) => { try { return JSON.parse(readFileSync(path, "utf8")); } catch (e) { errors.push(`${path}: ${e.message}`); return null; } };
