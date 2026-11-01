@@ -20,6 +20,10 @@ Triage is a [Herdr](https://herdr.dev) layout for running many coding agents at 
 - **Rail.** Fold the sidebar to a column of icons and states.
 - **Activity bar.** The side panel's sections as icons on its edge, with counts: agents waiting on Reply, changed files on Review, worktrees ready to remove.
 
+| Worktrees | Settings |
+|---|---|
+| ![Worktrees](worktrees.png) | ![Settings](settings.png) |
+
 GitHub data comes from the [GitHub CLI](https://cli.github.com) and is cached for five minutes per folder, so it doesn't eat your rate limit.
 
 ## Install
