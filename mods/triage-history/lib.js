@@ -2,14 +2,21 @@
 
 export const FORMAT = "%H%x1f%P%x1f%an%x1f%aI%x1f%D%x1f%s";
 
-// `git log --format=FORMAT`: one commit per line, fields split by \x1f.
+// `git log --decorate=full --format=FORMAT`: one commit per line, fields split by \x1f.
+// Full ref names tell a local "a/b" branch from a remote one.
+const KINDS = [["local", /^(?:HEAD -> )?refs\/heads\/(.+)$/], ["remote", /^refs\/remotes\/(.+)$/], ["tag", /^tag: refs\/tags\/(.+)$/]];
+function refOf(r) {
+  for (const [kind, re] of KINDS) { const m = re.exec(r); if (m) return { name: m[1], kind }; }
+  return null;
+}
+
 export function parseLog(stdout) {
   return stdout.split("\n").filter(Boolean).map((line) => {
     const [hash, parents, author, date, refs, subject] = line.split("\x1f");
     return {
       hash, author, date, subject: subject ?? "",
       parents: parents ? parents.split(" ") : [],
-      refs: refs ? refs.split(", ").map((r) => r.replace(/^HEAD -> /, "")).filter((r) => r !== "HEAD") : [],
+      refs: refs ? refs.split(", ").map(refOf).filter(Boolean) : [],
       head: /^HEAD(?: -> |$)/.test(refs ?? ""),
     };
   });
@@ -75,7 +82,7 @@ export function parseShow(stdout) {
 
 export function matches(c, query) {
   const q = query.trim().toLowerCase();
-  return !q || [c.subject, c.author, c.hash, ...c.refs].some((s) => s.toLowerCase().includes(q));
+  return !q || [c.subject, c.author, c.hash, ...c.refs.map((r) => r.name)].some((s) => s.toLowerCase().includes(q));
 }
 
 export function ago(iso) {

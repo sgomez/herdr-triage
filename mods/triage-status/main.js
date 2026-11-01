@@ -3,7 +3,8 @@
 import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
 import { parseStatus } from "./lib.js";
-import { spaces, panes, focused, agents, terminals, exec, theme, run, window } from "herdr";
+import { reveal } from "./layout.js";
+import { spaces, panes, focused, agents, terminals, exec, theme, run, window, layout } from "herdr";
 
 function location() {
   const space = spaces().find((s) => s.active), f = focused();
@@ -57,7 +58,7 @@ export default class TriageStatus extends View {
         .when(g.ahead > 0, (el) => el.child(div().text_color(t.foreground).child(`↑${g.ahead}`)))
         .when(g.behind > 0, (el) => el.child(div().text_color(t.blocked).child(`↓${g.behind}`)))
         .when(g.dirty > 0, (el) => el.child(div().id("dirty").text_color(t.done).cursor_pointer().tooltip("Open Review")
-          .on_click(() => { run("layout.select", { stack: "panel-body", child: "changes" }); run("layout.show", { id: "panel" }); })
+          .on_click(() => reveal({ layout, panes, run }, "changes"))
           .child(`±${g.dirty}`)))))
       .child(div().flex_1())
       .child(div().id("palette").text_color(t.dim).cursor_pointer().on_click(() => run("app.palette")).child(`${mac ? "⌘" : "Ctrl"} Shift P  commands`));

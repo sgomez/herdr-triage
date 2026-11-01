@@ -3,8 +3,9 @@
 
 import { View, div, image, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { agents, terminals, spaces, run, hc, exec, layout, window, theme, shared, setShared, setAgentOrder, openOverlay, closeOverlay, props, nextCommand } from "herdr";
+import { agents, terminals, spaces, panes, run, hc, exec, layout, window, theme, shared, setShared, setAgentOrder, openOverlay, closeOverlay, props, nextCommand } from "herdr";
 import { rank, machineOf, qualify, clean, firstLine, duration } from "./lib.js";
+import { reveal, stackTabs } from "./layout.js";
 
 const ICON = (n) => `mods/workspace-chrome/${n}.svg`;
 
@@ -50,8 +51,7 @@ const SNOOZES = () => {
 
 function showReply(addr) {
   setShared("triage.target", addr);
-  run("layout.select", { stack: "panel-body", child: "reply" });
-  run("layout.show", { id: "panel" });
+  reveal({ layout, panes, run }, "triage-reply");
 }
 
 export default class Triage extends View {
@@ -59,7 +59,7 @@ export default class Triage extends View {
     if (props()?.snooze || props()?.newSpace) return;
     // The shipped tabs mod only restores the side panel on tabs listed here.
     const panels = shared("workspace.panels") ?? ["files", "changes"];
-    const missing = ["reply", "history", "pr", "issues", "settings"].filter((p) => !panels.includes(p));
+    const missing = stackTabs(layout(), (mod) => mod.startsWith("triage-")).filter((id) => !panels.includes(id));
     if (missing.length) setShared("workspace.panels", [...panels, ...missing]);
     this.folded = new Set(["snoozed", "archived"]);
     // When each terminal entered its current state; status_ms can lag, so we keep our own.

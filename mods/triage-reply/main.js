@@ -5,18 +5,11 @@ import { View, div, image, svg } from "gpui-kit";
 import { v_flex, h_flex, TextareaState, Textarea } from "gpui-base";
 import { agents, terminals, spaces, focused, hc, run, theme, shared, settings, layout } from "herdr";
 import { duration } from "./lib.js";
+import { shown } from "./layout.js";
 
 const LINES = 40;
 
-function find(node, id) {
-  if (node?.id === id) return node;
-  for (const c of node?.children ?? []) { const f = find(c, id); if (f) return f; }
-  return null;
-}
-const visible = () => {
-  const root = layout();
-  return !find(root, "panel")?.hidden && find(root, "panel-body")?.active === "reply";
-};
+const visible = () => shown(layout(), "triage-reply");
 
 const LABEL = { blocked: "Blocked", error: "Error", working: "Working", done: "Done", idle: "Idle" };
 const stateOf = (info) => info?.status?.state ?? null;

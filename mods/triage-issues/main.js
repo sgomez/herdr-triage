@@ -5,16 +5,9 @@ import { View, div } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input, TextareaState, Textarea, TextView } from "gpui-base";
 import { spaces, panes, focused, exec, hc, run, theme, layout, window, setShared, openOverlay } from "herdr";
 import { linkRefs, ago } from "./lib.js";
+import { shown, reveal } from "./layout.js";
 
-function find(node, id) {
-  if (node?.id === id) return node;
-  for (const c of node?.children ?? []) { const f = find(c, id); if (f) return f; }
-  return null;
-}
-const visible = () => {
-  const root = layout();
-  return !find(root, "panel")?.hidden && find(root, "panel-body")?.active === "issues";
-};
+const visible = () => shown(layout(), "triage-issues");
 
 function location() {
   const space = spaces().find((s) => s.active), f = focused();
@@ -164,7 +157,7 @@ export default class Issues extends View {
 
   handOff(d) {
     setShared("triage.draft", { at: Date.now(), text: `Work on issue #${d.number}: ${d.title}\n${d.url}` });
-    run("layout.select", { stack: "panel-body", child: "reply" });
+    reveal({ layout, panes, run }, "triage-reply");
   }
 
   // Issues of this repo open here; everything else in the browser.

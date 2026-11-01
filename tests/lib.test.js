@@ -92,9 +92,9 @@ test("git status: branch, ahead/behind and changed files", () => {
 });
 
 test("parseLog reads refs and marks HEAD", () => {
-  const [c] = history.parseLog("abc\x1fp1 p2\x1fAna\x1f2026-01-01T00:00:00Z\x1fHEAD -> main, origin/main, tag: v1\x1fMerge x\n");
+  const [c] = history.parseLog("abc\x1fp1 p2\x1fAna\x1f2026-01-01T00:00:00Z\x1fHEAD -> refs/heads/milestone/m2, refs/remotes/origin/milestone/m2, tag: refs/tags/v1, refs/stash\x1fMerge x\n");
   assert.deepEqual(c.parents, ["p1", "p2"]);
-  assert.deepEqual(c.refs, ["main", "origin/main", "tag: v1"]);
+  assert.deepEqual(c.refs, [{ name: "milestone/m2", kind: "local" }, { name: "origin/milestone/m2", kind: "remote" }, { name: "v1", kind: "tag" }]);
   assert.equal(c.head, true);
   assert.equal(c.subject, "Merge x");
 });

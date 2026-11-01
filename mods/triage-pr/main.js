@@ -5,16 +5,9 @@ import { View, div } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
 import { spaces, panes, focused, exec, theme, layout, window } from "herdr";
 import { ago, checksOf, stateOf } from "./lib.js";
+import { shown } from "./layout.js";
 
-function find(node, id) {
-  if (node?.id === id) return node;
-  for (const c of node?.children ?? []) { const f = find(c, id); if (f) return f; }
-  return null;
-}
-const visible = () => {
-  const root = layout();
-  return !find(root, "panel")?.hidden && find(root, "panel-body")?.active === "pr";
-};
+const visible = () => shown(layout(), "triage-pr");
 
 function location() {
   const space = spaces().find((s) => s.active), f = focused();

@@ -4,16 +4,9 @@ import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input } from "gpui-base";
 import { spaces, panes, focused, exec, run, theme, layout, settings } from "herdr";
 import { FORMAT, parseLog, graph, parseSubject, initials, hashOf, parseShow, matches, ago } from "./lib.js";
+import { shown, reveal } from "./layout.js";
 
-function find(node, id) {
-  if (node?.id === id) return node;
-  for (const c of node?.children ?? []) { const f = find(c, id); if (f) return f; }
-  return null;
-}
-const visible = () => {
-  const root = layout();
-  return !find(root, "panel")?.hidden && find(root, "panel-body")?.active === "history";
-};
+const visible = () => shown(layout(), "triage-history");
 
 function location() {
   const space = spaces().find((s) => s.active), f = focused();
@@ -48,7 +41,7 @@ export default class TriageHistory extends View {
     cx.spawn(async (cx) => {
       try {
         const [r, s] = await Promise.all([
-          exec("git", ["--no-optional-locks", "log", "--date-order", `-n${this.limit}`, `--format=${FORMAT}`, ...SCOPES[this.scope]], loc),
+          exec("git", ["--no-optional-locks", "log", "--date-order", "--decorate=full", `-n${this.limit}`, `--format=${FORMAT}`, ...SCOPES[this.scope]], loc),
           exec("git", ["--no-optional-locks", "status", "--porcelain"], loc),
         ]);
         if (context !== this.context) return;
@@ -119,8 +112,8 @@ export default class TriageHistory extends View {
       .child(flat ? div().flex_none().ml(4).w(8).h(8).rounded(8).bg(col) : this.lanes(row, c.head, width, color))
       .child(div().flex_none().w(18).h(18).rounded(18).flex().items_center().justify_center().text_size(8.5).font_semibold()
         .bg(`${avatar}33`).text_color(avatar).child(initials(c.author)))
-      .children(c.refs.slice(0, 2).map((r) => r.startsWith("tag: ") ? this.chip(r.slice(5), color(3), `${color(3)}26`, null)
-        : r.includes("/") ? this.chip(r, col, null, `${col}66`) : this.chip(r, col, `${col}2e`, null)))
+      .children(c.refs.slice(0, 2).map((r) => r.kind === "tag" ? this.chip(r.name, color(3), `${color(3)}26`, null)
+        : r.kind === "remote" ? this.chip(r.name, col, null, `${col}66`) : this.chip(r.name, col, `${col}2e`, null)))
       .when(s.pr !== undefined, (el) => el.child(this.chip(`#${s.pr}`, color(0), `${color(0)}26`, null)))
       .when(Boolean(s.type), (el) => el.child(this.chip(`${s.type}${s.breaking ? "!" : ""}`, type ?? t.muted, `${type ?? t.muted}22`, null)))
       .when(Boolean(s.scope), (el) => el.child(div().flex_none().max_w(80).truncate().text_size(11.5).text_color(t.dim).child(s.scope)))
@@ -164,7 +157,7 @@ export default class TriageHistory extends View {
     const color = (i) => (i === null ? t.muted : palette[i % palette.length]);
     const query = this.query.value(), flat = query.trim() !== "";
     const width = Math.min(Math.max(1, ...(this.rows ?? []).map((r) => r.width)), LANES);
-    const branch = this.commits?.find((c) => c.head)?.refs.find((r) => !r.includes("/") && !r.startsWith("tag: "));
+    const branch = this.commits?.find((c) => c.head)?.refs.find((r) => r.kind === "local")?.name;
     const chip = (id, label) => div().id(`s-${id}`).px(8).h(22).flex().items_center().rounded(6).text_size(11.5).cursor_pointer()
       .when(this.scope === id, (el) => el.bg(t.raised)).text_color(this.scope === id ? t.foreground : t.muted)
       .on_click((_e, cx) => { if (this.scope !== id) { this.scope = id; localStorage.setItem("scope", id); this.selected = null; this.load(cx); cx.notify(); } })
@@ -184,7 +177,7 @@ export default class TriageHistory extends View {
           .child(Input.new(this.query).w_full().text_size(12).text_color(t.foreground))))
       .when(this.dirty > 0, (el) => el.child(h_flex().id("dirty").flex_none().mx(6).mt(6).h(28).px(10).gap(8).items_center().rounded(7)
         .bg(`${color(3)}1f`).text_size(12).cursor_pointer().hover((s) => s.bg(`${color(3)}33`)).tooltip("Open Review")
-        .on_click(() => { run("layout.select", { stack: "panel-body", child: "changes" }); run("layout.show", { id: "panel" }); })
+        .on_click(() => reveal({ layout, panes, run }, "changes"))
         .child(div().w(DOT).h(DOT).rounded(DOT).border(2).border_color(color(3)))
         .child(div().flex_1().text_color(t.foreground).child("Uncommitted changes"))
         .child(div().text_color(color(3)).font_semibold().child(`±${this.dirty}`))))
